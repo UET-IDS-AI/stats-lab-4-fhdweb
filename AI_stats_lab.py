@@ -15,29 +15,24 @@ from scipy.integrate import quad
 # =========================================================
 
 def cdf_probabilities():
-    """
-    STEP 1
-    Compute analytically
 
-        P(X > 5)
-        P(X < 5)
-        P(3 < X < 7)
+    # Analytical probabilities
+    analytic_gt5 = math.exp(-5)
+    analytic_lt5 = 1 - math.exp(-5)
+    analytic_interval = math.exp(-3) - math.exp(-7)
 
-    STEP 2
-    Simulate 100000 samples from Exp(1)
+    # Monte Carlo simulation
+    np.random.seed(42)
+    samples = np.random.exponential(scale=1, size=100000)
 
-    STEP 3
-    Estimate P(X > 5) using simulation
+    simulated_gt5 = np.mean(samples > 5)
 
-    RETURN
-
-        analytic_gt5
-        analytic_lt5
-        analytic_interval
+    return (
+        analytic_gt5,
+        analytic_lt5,
+        analytic_interval,
         simulated_gt5
-    """
-
-    raise NotImplementedError
+    )
 
 
 # =========================================================
@@ -45,32 +40,34 @@ def cdf_probabilities():
 # =========================================================
 
 def pdf_validation_plot():
-    """
-    Candidate PDF
 
-        f(x) = 2x e^{-x^2} for x >= 0
+    # Define the candidate PDF
+    def f(x):
+        return 2 * x * math.exp(-(x**2))
 
-    STEP 1
-    Verify non-negativity
+    # Compute the integral from 0 to infinity
+    integral_value, _ = quad(f, 0, np.inf)
 
-    STEP 2
-    Compute
+    # Check non-negativity (on sample points)
+    x_vals = np.linspace(0, 3, 100)
+    y_vals = 2 * x_vals * np.exp(-(x_vals**2))
+    non_negative = np.all(y_vals >= 0)
 
-        integral_0^∞ f(x) dx
+    # Determine if valid PDF
+    is_valid_pdf = non_negative and abs(integral_value - 1) < 1e-3
 
-    STEP 3
-    Determine if valid PDF
+    # Plot the PDF
+    plt.figure()
+    plt.plot(x_vals, y_vals)
+    plt.title("PDF: f(x) = 2x e^{-x^2}")
+    plt.xlabel("x")
+    plt.ylabel("f(x)")
+    plt.close()
 
-    STEP 4
-    Plot f(x) on [0,3]
-
-    RETURN
-
-        integral_value
+    return (
+        integral_value,
         is_valid_pdf
-    """
-
-    raise NotImplementedError
+    )
 
 
 # =========================================================
@@ -78,30 +75,24 @@ def pdf_validation_plot():
 # =========================================================
 
 def exponential_probabilities():
-    """
-    X ~ Exp(1)
 
-    STEP 1
-    Compute analytically
+    # Analytical probabilities
+    analytic_gt5 = math.exp(-5)
+    analytic_interval = math.exp(-1) - math.exp(-3)
 
-        P(X > 5)
-        P(1 < X < 3)
+    # Simulation
+    np.random.seed(42)
+    samples = np.random.exponential(scale=1, size=100000)
 
-    STEP 2
-    Simulate 100000 samples
+    simulated_gt5 = np.mean(samples > 5)
+    simulated_interval = np.mean((samples > 1) & (samples < 3))
 
-    STEP 3
-    Estimate probabilities using simulation
-
-    RETURN
-
-        analytic_gt5
-        analytic_interval
-        simulated_gt5
+    return (
+        analytic_gt5,
+        analytic_interval,
+        simulated_gt5,
         simulated_interval
-    """
-
-    raise NotImplementedError
+    )
 
 
 # =========================================================
@@ -109,32 +100,24 @@ def exponential_probabilities():
 # =========================================================
 
 def gaussian_probabilities():
-    """
-    X ~ N(10,2^2)
 
-    STEP 1
-    Standardize variable
+    mu = 10
+    sigma = 2
 
-        Z = (X - 10)/2
+    # Analytical probabilities
+    analytic_le12 = norm.cdf(12, loc=mu, scale=sigma)
+    analytic_interval = norm.cdf(12, loc=mu, scale=sigma) - norm.cdf(8, loc=mu, scale=sigma)
 
-    STEP 2
-    Compute analytically
+    # Simulation
+    np.random.seed(42)
+    samples = np.random.normal(mu, sigma, 100000)
 
-        P(X ≤ 12)
-        P(8 < X < 12)
+    simulated_le12 = np.mean(samples <= 12)
+    simulated_interval = np.mean((samples > 8) & (samples < 12))
 
-    STEP 3
-    Simulate 100000 samples
-
-    STEP 4
-    Estimate probabilities
-
-    RETURN
-
-        analytic_le12
-        analytic_interval
-        simulated_le12
+    return (
+        analytic_le12,
+        analytic_interval,
+        simulated_le12,
         simulated_interval
-    """
-
-    raise NotImplementedError
+    )
